@@ -28,6 +28,45 @@
     </div>
     <script src="../../common/js/jquery.js"></script>
     <script>
+
+    // ページが読み込み完了し、DOMの構築が完了した時点でfunction()内が実行されます。
+      $(function () {
+        // Topicon という変数に、数値１００を代入。
+          var Topicon = 100;
+        // menu__btn要素を（ボタン）クリックしたら、以下のfunction()内が実行されます。↓
+          $('.menu__btn').on('click', function () {
+            // type という変数に (this)前の要素のオブジェクトにkey=valueのデータを設定したものを代入。
+            var type = $(this).data('scroll-place-type');
+            // index_menu__btn という変数に menu__btn要素群中でセレクタにマッチする要素のインデックスを返すものを代入。（引数 this）
+            var index_menu__btn = $('.menu__btn').index(this);
+            // pol という変数に title要素のn番目の要素を返して（引数index_menu__btn）、
+            // 画面上の縦位置を参照・設定したものを代入。
+            var pol = $('.title').eq(index_menu__btn).offset().top;
+            // ページ全体にアニメーションが実行される。（スクロールトップ、pol関数実行）
+            $('html,body').animate({ scrollTop: pol });
+          });
+          // ブラウザ上でスクロールされたら、以下のfunction()内が実行されます。↓
+          $(window).on('scroll', function () {
+            // もしも ブラウザ上で縦方向のスクロールの位置が、Topicon変数の位置以上であれば、
+            if ($(window).scrollTop() >= Topicon) {
+              // scrollTopBtn要素(ボタン）をフェードインさせる。
+              $('.scrollTopBtn').fadeIn();
+              // そうでなければ、もしも以下の条件であれば、↓
+            } else {
+              // もしも ブラウザ上で縦方向のスクロールの位置が、Topicon変数の位置より下であれば、
+              if ($(window).scrollTop() < Topicon) {
+                // scrollTopBtn要素（ボタン）をフェードアウトさせる。
+                $('.scrollTopBtn').fadeOut();
+              }
+            }
+          });
+          // scrollTopBtn要素（ボタン）をクリックしたら以下のfunction()内が実行されます。↓
+          $('.scrollTopBtn').on('click', function () {
+            // HTMLのbody要素に０位置にスクロールトップアニメーション効果を適用します。
+            $('html, body').animate({ scrollTop: 0 });
+          });
+      });
+
       // 今回やるのはページ内スクロールです。
       // 左上にあるメニューを押して、そのタイトルと同じ位置までスクロールするアニメーションです。
       // また100pxほどスクロールすると右下にボタンがフェードインします。

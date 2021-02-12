@@ -26,6 +26,48 @@
     </div>
     <script src="../../common/js/jquery.js"></script>
     <script>
+
+        // slideWidth という変数に、slider-list li要素を外枠の幅を参照・設定したものを代入。
+        var slideWidth = $('.slider-list li').outerWidth();
+        // slideNum という変数に、slider-list li要素の個数を返します。
+          var slideNum = $('.slider-list li').length;
+          // slideSetWidth という変数に、 slideWidth変数とslideNum変数をかけた物を代入。
+          var slideSetWidth = slideWidth * slideNum;
+         // slider-list li要素に CSSを参照・設定する。（widthの指定に、slideSetWidth変数を指定）
+          $('.slider-list').css('width', slideSetWidth);
+          var slideCurrent = 0;  // 現在地を示す変数
+          // 前へボタンが押されたとき↓ function()内が実行されます。
+          $('.is-prev').click(function () {
+            // slideCurrent（現在地から、--;(後置型デクリメント演算子。)ひとつ前にスライド。
+            slideCurrent--;
+            sliding();
+          });
+          // 次へボタンが押されたとき↓ function()内が実行されます。
+          $('.is-next').click(function () {
+            // slideCurrent（現在地から、++;（後置型インクリメント演算子。）ひとつ後にスライド。
+            slideCurrent++;
+            sliding();
+          });
+          // data という変数に、(this)前の要素の子孫要素群に、next に key=value のデータを設定・参照したものを代入。
+          var data = $(this).data('next');
+          // slidingという変数に 以下の関数を代入↓
+          var sliding = function () {
+            // もしも slideCurrentが0以下だったら、
+            if (slideCurrent < 0) {
+              // slideCurrent変数に slideNum変数に減算演算子（−１）をしたものを代入。
+              slideCurrent = slideNum - 1;
+              // そうでなければ もしも slideCurrentがslideNumを超えたら、
+            } else if (slideCurrent >= slideNum) {
+              // slideCurrent変数は０の位置になる。
+              slideCurrent = 0;
+            }
+            // slider-listの要素のアニメーションをストップし、以下のアニメーションを実行します。
+            $('.slider-list').stop().animate({
+              // 代入されたスライド数 × リスト1枚分の幅を左に動かす。
+              left: slideCurrent * -slideWidth
+            });
+          }
+          
       // 今回やるのはスライドショーです。
       // 右方向には右のボタンを押すと移動し、左方向には左のボタンを押すと移動する。また右端にいる状態で右のボタンを押すと最初の位置に戻り、 左端にいる状態で左のボタンを押すと最後の位置に移動する。data属性にprev,nextを記述してあるのでこちらを取得すると楽です。
       // 位置情報は配列に格納しておき、右のボタンをクリックするたびに配列の添字を1追加し、左のボタンをクリックすると配列の添字を1減らします。そうすることによって次の座標が取得できます。その座標にアニメーションさせるととても楽です。

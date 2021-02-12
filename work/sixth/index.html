@@ -21,6 +21,35 @@
     </div>
     <script src="../../common/js/jquery.js"></script>
     <script>
+
+     // ページが読み込み完了し、DOMの構築が完了した時点でfunction()内が実行されます。
+      $(function () {
+     // max_length という変数に、数値30 を代入。
+        var max_length = 30,
+     // $input という変数に、 input要素を代入。
+        $input = $('input'),
+     // $counter という変数に、 rest-count要素を代入。
+        $counter = $('.rest-count');
+     // $input要素の上でキーが離された際に、インプットのイベントが発生されます。↓
+        $input.keyup('input', () => {
+     // length という変数に、以下を代入↓
+     // $inputに、入力フォームなどの値を参照するものと、改行を含まない文字数を取得。
+          var length = $input.val().replace(/\s/g, '').length,
+     // rest_lengthという変数に、max_length変数 から length変数 を引いた値を代入。
+          rest_length = max_length - length;
+     // もしも rest_length変数が0より小さい場合、↓
+            if (rest_length < 0) {
+     // $counter内のテキストを参照します。
+              $counter.text(`${rest_length}`);
+     // そうでなければ、$counter内のテキストを参照し、↓
+            } else {
+              $counter.text(`${rest_length}`);
+            }
+     // $counterの表示を赤色に設定。（rest_lengthの値が0より小さい場合)
+            $counter.toggleClass('red', rest_length < 0);
+          });
+        });
+
       // 今回やるのは文字数チェッカーです。
       // .input に文字を入力し、文字を入力した段階でその文字数に応じて .rest-count の値が減っていき、最大文字数である30文字以上入力すると .rest-count に .red クラスが追加されて文字色が赤くなり、30文字以内になると、.red クラスが外れ、文字色が元に戻る。（ちなみに改行は文字数に含まない。）
       // .keyup() 文字入力後に発火されるイベントです。
