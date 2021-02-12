@@ -21,6 +21,18 @@
     </div>
     <script src="../../common/js/jquery.js"></script>
     <script>
+    
+      $(function() {
+        // 「modal-show」クリックしたら「fadeiIn」でモーダルウインドウをひょうじ。
+        $('.modal-show').click(function() {
+          $('.modal').fadeIn();
+        });
+        // 「modal-close」をクリックしたら「fade-Out」で非表示にしている。
+        $('.modal-close').click(function() {
+          $('.modal').fadeOut();
+        });
+      });
+
       // 今回やるのはモーダルです。
       // .modal-show をクリックすることで .modal をfadeInさせる。
       // .modal-close をクリックで .modal をfadeOutさせる。

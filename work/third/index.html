@@ -24,6 +24,26 @@
     </div>
     <script src="../../common/js/jquery.js"></script>
     <script>
+      
+      // ページが読み込み完了し、DOMの構築が完了した時点でfunction()内が実行されます。
+      $(function() {
+        // navという変数に代入。→nav要素を取得する。
+        var nav = $(".nav");
+        // tabという変数に代入。→変数 navの子孫要素の中から li等にマッチする要素を返します。
+        var tab = nav.find("li");
+        // contentsという変数に代入→ contents要素を取得する。
+        var contents = $(".contents");
+        // letterという変数に代入。→ contentsの子孫要素の中から li等にマッチする要素を返します。
+        var letter = contents.find("li");
+        // tab変数をクリックして、要素がクリックされた時にfunction()内をが実行されます。
+        tab.click(function() {
+          // indexという変数に代入。→セレクタを$(this)にし、クリックした要素のインデックス番号
+          var index = $(this).index();
+          // letter変数にis-hiddenクラスを追加、現在マッチしている要素をインデックスでフィルタリングします。そのis-hiddenクラスを削除。
+          letter.addClass("is-hidden").eq(index).removeClass("is-hidden");
+        });
+      });
+
       // 今回やるのはタブメニューです。
       // navの小要素であるliをクリックして、contents内の小要素であるli要素を表示させる。
       // .index() 要素のindexを取得します。
