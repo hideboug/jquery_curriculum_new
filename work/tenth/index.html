@@ -26,108 +26,165 @@
       </div>
     </div>
     <script src="../../common/js/jquery.js"></script>
-    <!-- <script src="./js/appid.js"></script> -->
+    <script src="./js/appid.js"></script>
     <script>
 
       $(function() {
         var page = null;
         var keyword = '';
+        var message = $(".message");
+        var MIN_LIMIT_NUMBER = 1;
+        // 検索ボタンをクリックしたとき
         $("[data-js='search-btn']").on('click', function() {
+          // console.log($("[data-js='search-btn']"));
           keyword = $("[data-js='search-word']").val();
-          page = 1;
-          getBookData(keyword, page);
+          page = MIN_LIMIT_NUMBER;
+          getBooksAjax(keyword, page);
         });
 
+        // ページャー
         $(document).on('click', "[data-js='page-next']", function(e) {
           e.preventDefault();
-          if ($(this).hasClass('disabled')) {
-            return false;
-          }
-          page += 1;
-          getBookData(keyword, page);
-        })
+          // console.log(page);
+          // console.log(e);
+          hasDisabledNext();
+        });
         $(document).on('click', "[data-js='page-prev']", function(e) {
           e.preventDefault();
-          if ($(this).hasClass('disabled')) {
+          // console.log(page);
+          hasDisabledPrev();
+        });
+
+        function hasDisabledNext() {
+          // console.log($("[data-js='page-next']").hasClass('disabled'));
+          if ($("[data-js='page-next']").hasClass('disabled')) {
             return false;
           }
-          page -= 1;
-          getBookData(keyword, page);
-        }) 
-      });
+          page ++;
+          getBooksAjax(keyword, page);
+        };
 
-      function getBookData(keyword, page) {
-        $.ajax({
-          url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
-          type: 'GET',
-          datatype: 'json',
-          data: {
-            // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
-            applicationId: '1019399324990976605', // (今回はこの変数をIDとして使用します) ※メンターから別途渡されるファイルを読み込んでください。
-            booksGenreId: '001',
-            keyword: keyword,
-            hits: '20',
-            page: page,
-          },
-        }).done(function(data) {
-          console.log(data);
-
-          clearPageData();
-
-          showBookData(data);
-        });
-      }
-
-      function showBookData(data) {
-        if (data.count <= 0) {
-          var errorMessage = $('<p class="error-message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</p>');
-          $('.message').append(errorMessage);
-        } else {
-          var itemData = '';
-          $.each(data.Items, function(i, item) {
-            itemData +=
-              '<li class="lists__item">' +
-                '<div class="lists__item__inner">' +
-                  '<a href=" ' + item.Item.itemUrl + ' " class="lists__item__link" target="_blank">' +
-                    '<img src=" ' + item.Item.largeImageUrl + ' " class="lists__item__img" alt="">' +
-                    '<p class="lists__item__detail">作品名：' + item.Item.title + '</p>' + 
-                    '<p class="lists__item__detail">作者：' + item.Item.author +  '</p>' +
-                    '<p class="lists__item__detail">出版社：' + item.Item.publisherName + '</p>' +
-                  '</a>' +
-                '</div>' +
-              '</li>'
+        function hasDisabledPrev() {
+          if ($("[data-js='page-prev']").hasClass('disabled')) {
+            return false;
+          }
+          page --;
+          getBooksAjax(keyword, page);
+        };
+      
+        // Ajax関数化
+        function getBooksAjax(keyword, page) {
+          // console.log(keyword, page);
+          $.ajax({
+            url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
+            type: 'GET',
+            datatype: 'json',
+            data: {
+              // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
+              applicationId: appId, // (今回はこの変数をIDとして使用します) ※メンターから別途渡されるファイルを読み込んでください。
+              booksGenreId: '001',
+              keyword: keyword,
+              hits: '20',
+              page: page,
+            },
+            // 正常な通信の場合done処理
+          }).done(function(data) {
+            console.log(data);
+            clearPage();
+            doneBooksData(data);
+            // 正常に通信ができないときfail処理
+          }).fail(function(error) {
+            console.log(error);
+            clearPage();
+            failErrorMessage(error);
           });
-          $('ul').append(itemData);
-          showPagination(data);
-        }
-      }
+        };
 
-      function showPagination(data) {
-        var pagination =
-          '<div class="pager" data-js="pager">' +
-            '<div class="counter">' + 
-              '<span class="counter-current">' + data.page + '</span>/<span class="counter-all">' + data.pageCount + '</span>' +
-            '</div>' +
-            '<div class="btn-wrapper">' +
-              '<a class="btn-item" data-js="page-prev" href="">前へ</a>' +
-              '<a class="btn-item" data-js="page-next" href="">次へ</a>' +
-            '</div>' +
-          '</div>'
-        $('ul').append(pagination);
+        // 通信成功時（done）の関数
+        function doneBooksData(data) {
+          // console.log(data);
+          if (data.count <= 0) {
+            var errorMessage = $('<p class="error-message">検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。</p>');
+            message.append(errorMessage);
+          } else {
+            // 商品の羅列
+            var itemData = '';
+            $.each(data.Items, function(index, val) {
+              itemData +=//加算代入
+                '<li class="lists__item">' +
+                  '<div class="lists__item__inner">' +
+                    '<a href=" ' + val.Item.itemUrl + ' " class="lists__item__link" target="_blank">' +
+                      '<img src=" ' + val.Item.largeImageUrl + ' " class="lists__item__img" alt="">' +
+                      '<p class="lists__item__detail">作品名：' + val.Item.title + '</p>' + 
+                      '<p class="lists__item__detail">作者：' + val.Item.author +  '</p>' +
+                      '<p class="lists__item__detail">出版社：' + val.Item.publisherName + '</p>' +
+                    '</a>' +
+                  '</div>' +
+                '</li>'
+            });
+            $('ul').append(itemData);//処理が重い　メソッド　処理を軽くするため
+            // console.log(itemData);
+            showPagination(data);
+          }
+        };
+        // 通信失敗時（fail）の関数
+        function failErrorMessage(error) {
+          // console.log(error);
+          var errorMessage = '';
+          switch (error.status) {
+            case 0:
+              errorMessage = '通信に失敗しました。インターネットの接続をご確認ください。';
+              break;
+            case 400:
+              errorMessage = '検索文字が入力されていません。';
+              break;
+            case 404:
+              errorMessage = '対象のデータが存在しません。';
+              break;
+            case 429:
+              errorMessage = 'リクエスト過多です。しばらく時間を置いてからお試しください。';
+              break;
+            case 500:
+              errorMessage = 'システムエラー。長時間続くようであれば、お問い合わせください。';
+              break;
+            case 503:
+              errorMessage = '楽天BOOKSメンテナンス中です。';
+              break;
+            default://　基本的にいる
+              errorMessage = '何かしらのエラーが発生しました。';
+              break;
+          }
+          // console.log(error.status);
+          message.append('<p class="error-message">' + errorMessage + '</p>');
+        };
+        // ページャー
+        function showPagination(data) {
+          var pagination =
+            '<div class="pager" data-js="pager">' +
+              '<div class="counter">' + 
+                '<span class="counter-current">' + data.page + '</span>/<span class="counter-all">' + data.pageCount + '</span>' +
+              '</div>' +
+              '<div class="btn-wrapper">' +
+                '<a class="btn-item" data-js="page-prev" href="">前へ</a>' +
+                '<a class="btn-item" data-js="page-next" href="">次へ</a>' +
+              '</div>' +
+            '</div>'
+          $('ul').append(pagination);
+          // 非活性（使用不能）処理
+          if (data.page <= MIN_LIMIT_NUMBER) {//マジックナンバー 定数化
+            $("[data-js='page-prev']").addClass('disabled');
+          }
+          if (data.page === data.pageCount) {
+            $("[data-js='page-next']").addClass('disabled');
+          }
+        };
 
-        if (data.page <= 1) {
-          $(".btn-item[data-js='page-prev']").addClass('disabled');
-        }
-        if (data.page === data.pageCount) {
-          $(".btn-item[data-js='page-next']").addClass('disabled');
-        }
-      }
-
-      function clearPageData() {
-        $('.lists').empty();
-        $('.message').empty();
-      }
-
+        // 空にする関数（指定した要素の子要素すべて）
+        function clearPage() {
+          $('.lists').empty();
+          message.empty();
+        };
+      });
       // 楽天ブックスの総合検索APIを使って製作してください。
       // answerの挙動を良く見てね！
       //
